@@ -24,6 +24,7 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
     const basicAuth = Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString(
       'base64'
     )
+    console.log("refreshing token");
     const response = await fetch("https://accounts.spotify.com/api/token",{
       method:"POST",
       headers:{
@@ -33,7 +34,9 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
     })
     const data = await response.json() as { access_token: string, refresh_token: string, expires_in: number  }
     console.log(data.access_token)
+    console.log("refresh ", data)
     return {
+      ...token,
       accessToken: data.access_token ,
       refreshToken: data.refresh_token ?? token.refreshToken,
       accessTokenExpires: Date.now() + data.expires_in * 1000
@@ -69,7 +72,7 @@ const handler = NextAuth({
         token.accessTokenExpires = account.expires_at
         return token
       }
-      if (Date.now() < token.accessTokenExpires * 1000) {
+      if (token.accessTokenExpires && Date.now() < token.accessTokenExpires * 1000) {
         return token
       }
       const newToken = await refreshAccessToken(token)

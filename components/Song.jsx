@@ -7,6 +7,8 @@ const Song = ({
   track,
   setGlobalCurrentSongId,
   setGlobalIsTrackPlaying,
+  setView,
+  setGlobalArtistId,
 }) => {
   const { data: session } = useSession();
   const [hover, setHover] = useState(false);
@@ -39,18 +41,26 @@ const Song = ({
       : minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
   }
 
+  function selectArtist(artist) {
+    console.log(artist);
+    setView("artist");
+    setGlobalArtistId(artist.id);
+  }
+
   return (
     <div
-      onClick={async () => {
-        await playSong(track);
-      }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       className="grid grid-cols-2 text-neutral-400 text-sm py-4 px-5 hover:bg-white hover:bg-opacity-10 rounded-lg cursor-default"
     >
       <div className="flex items-center space-x-4">
         {hover ? (
-          <PlayIcon className="w-5 h-5 text-white" />
+          <PlayIcon
+            onClick={async () => {
+              await playSong(track);
+            }}
+            className="w-5 h-5 text-white"
+          />
         ) : (
           <p className="w-5 ">{sno + 1}</p>
         )}
@@ -66,7 +76,12 @@ const Song = ({
             {track.artists.map((artist, i) => {
               return (
                 <>
-                  <span className="hover:underline">{artist.name}</span>
+                  <span
+                    onClick={() => selectArtist(artist)}
+                    className="hover:underline"
+                  >
+                    {artist.name}
+                  </span>
                   <span>{i != track.artists.length - 1 ? ", " : null}</span>
                 </>
               );

@@ -3,17 +3,23 @@ import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import FeaturedPlaylists from "./FeaturedPlaylists";
 import SearchResults from "./SearchResults";
 
 import React, { useEffect, useRef, useState } from "react";
 
-const Search = ({ setView, setGlobalPlaylistId }) => {
+const Search = ({
+  setView,
+  setGlobalPlaylistId,
+  setGlobalCurrentSongId,
+  setGlobalIsTrackPlaying,
+  setGlobalArtistId,
+}) => {
   const { data: session } = useSession();
   const [searchData, setSearchData] = useState(null);
   const [inputValue, setInputValue] = useState("");
-  const inputRef = useRef();
+  const inputRef = useRef(null);
 
   async function updateSearchResults(query) {
     const response = await fetch(
@@ -51,7 +57,10 @@ const Search = ({ setView, setGlobalPlaylistId }) => {
           className="rounded-full bg-white w-96 pl-12 text-neutral-900 text-base py-2 font-normal outline-0"
         />
       </header>
-      <div className="absolute z-20 top-5 right-8 flex items-center bg-black bg-opacitu-70 text-white space-x-3 opacity-90 hover:opacity-80 cursor-pointer rounded-full p-1 pr-2">
+      <div
+        onClick={() => signOut()}
+        className="absolute z-20 top-5 right-8 flex items-center bg-black bg-opacitu-70 text-white space-x-3 opacity-90 hover:opacity-80 cursor-pointer rounded-full p-1 pr-2"
+      >
         <img
           className="rounded-full w-7 h-7"
           src={session?.user.image}
@@ -71,6 +80,11 @@ const Search = ({ setView, setGlobalPlaylistId }) => {
             playlists={searchData?.playlists?.items}
             songs={searchData?.tracks?.items}
             artists={searchData?.artists?.items}
+            setView={setView}
+            setGlobalPlaylistId={setGlobalPlaylistId}
+            setGlobalCurrentSongId={setGlobalCurrentSongId}
+            setGlobalIsTrackPlaying={setGlobalIsTrackPlaying}
+            setGlobalArtistId={setGlobalArtistId}
           />
         )}
       </div>
